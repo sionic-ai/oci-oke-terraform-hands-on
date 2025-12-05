@@ -3,20 +3,21 @@
 # 퍼블릭 서브넷용 시큐리티 리스트
 resource "oci_core_security_list" "public" {
   compartment_id = data.terraform_remote_state.compartment.outputs.compartment_ocid
-  # TODO: VCN ID, 이름, 모든 아웃바운드와 인바운드 트래픽을 허용하는 룰 설정
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = "public"
 
   egress_security_rules {
-    destination      = "<대상>"
+    destination      = "0.0.0.0/0"
     destination_type = "CIDR_BLOCK"
     protocol         = "all"
-    description      = "<설명>"
+    description      = "Allow all egress"
     stateless        = false
   }
 
   ingress_security_rules {
     protocol    = "all"
-    source      = "<소스>"
-    description = "<설명>"
+    source      = "0.0.0.0/0"
+    description = "Allow all ingress"
     stateless   = false
   }
 }
@@ -24,5 +25,21 @@ resource "oci_core_security_list" "public" {
 # 프라이빗 서브넷용 시큐리티 리스트
 resource "oci_core_security_list" "private" {
   compartment_id = data.terraform_remote_state.compartment.outputs.compartment_ocid
-  # TODO: VCN ID, 이름, 모든 아웃바운드 트래픽과 VCN 내부에서 발생한 인바운드 트래픽을 허용하는 룰 설정
+  vcn_id         = oci_core_vcn.this.id
+  display_name   = "private"
+
+  egress_security_rules {
+    destination      = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    protocol         = "all"
+    description      = "Allow all egress"
+    stateless        = false
+  }
+
+  ingress_security_rules {
+    protocol    = "all"
+    source      = "10.0.0.0/16"
+    description = "Allow all from VCN"
+    stateless   = false
+  }
 }
