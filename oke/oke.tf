@@ -1,14 +1,14 @@
 # https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/containerengine_cluster
 
 resource "oci_containerengine_cluster" "this" {
-  compartment_id     = "<컴파트먼트 ID>"
-  name               = "<이름>"
+  compartment_id     = data.terraform_remote_state.compartment.outputs.compartment_ocid
+  name               = "sionic-terraform-labs-oke"
   kubernetes_version = "v1.31.1"
-  vcn_id             = "<VCN ID>"
+  vcn_id             = data.terraform_remote_state.network.outputs.vcn_id
   type               = "ENHANCED_CLUSTER"
 
   options {
-    service_lb_subnet_ids = ["<퍼블릭 서브넷 ID>"]
+    service_lb_subnet_ids = [data.terraform_remote_state.network.outputs.public_subnet_id]
     kubernetes_network_config {
       pods_cidr     = "10.244.0.0/16"
       services_cidr = "10.96.0.0/16"
@@ -20,8 +20,8 @@ resource "oci_containerengine_cluster" "this" {
   }
 
   endpoint_config {
-    is_public_ip_enabled = true # 이번 실습은 public endpoint를 통해 진행
-    subnet_id            = "<퍼블릭 서브넷 ID>"
+    is_public_ip_enabled = true
+    subnet_id            = data.terraform_remote_state.network.outputs.public_subnet_id
   }
 }
 
